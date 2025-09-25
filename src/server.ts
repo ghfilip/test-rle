@@ -1,11 +1,9 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response } from 'express';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 app.use(express.json());
-
-// --- Implementations ---
 
 export function encodeArrayJoin(str: string): string {
   if (!str) return "";
@@ -53,13 +51,9 @@ function dispatch(str: string, method: Method = "array"): string {
     case "regex":
       return encodeRegex(str);
     default:
-      // exhaustive check
-      const _never: never = method;
-      throw new Error(`Unknown method ${( _never as unknown ) as string}`);
+      throw new Error(`Unknown method ${( method as unknown ) as string}`);
   }
 }
-
-// --- Routes ---
 
 app.get("/", (_req: Request, res: Response) => {
   res.send("Run Length Encoding TS server is up");
@@ -79,28 +73,26 @@ app.post("/encode", (req: Request, res: Response) => {
   }
 });
 
-// Optional: quick micro-benchmark endpoint
-app.post("/bench", (req: Request, res: Response) => {
-  const { input, iters = 5 } = req.body as { input?: string; iters?: number };
+app.post("/benchmark", (req: Request, res: Response) => {
+  const { input, iterations = 5 } = req.body as { input?: string; iterations?: number };
   if (typeof input !== "string") {
     return res.status(400).json({ error: "Input must be a string" });
   }
   const methods: Method[] = ["array", "concat", "regex"];
   const results: Record<string, number> = {};
 
-  // warmup
   methods.forEach((m) => dispatch(input, m));
 
   for (const m of methods) {
     let sum = 0;
-    for (let i = 0; i < iters; i++) {
+    for (let i = 0; i < iterations; i++) {
       const t0 = performance.now();
       dispatch(input, m);
       sum += performance.now() - t0;
     }
-    results[m] = sum / iters;
+    results[m] = sum / iterations;
   }
-  res.json({ iters, msAvg: results });
+  res.json({ iterations, msAvg: results });
 });
 
 app.listen(PORT, () => {
