@@ -25,7 +25,7 @@ a4b3c3
 `a` is repeated 4 times consecutively, `b` 3 times, `c` also 3 times.
 ---
 
-### SOLUTION
+# SOLUTION
 
     1. array - Loop + array push + join - fast for large strings
     2. concat - Loop + string concatenation - fast on small strings
